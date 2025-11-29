@@ -47,6 +47,9 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
       } catch (error) {
         console.error('Error sending message:', error);
       }
+      
+      // Close LIFF window
+      liff.closeWindow();
     }
     
     // Close notification
