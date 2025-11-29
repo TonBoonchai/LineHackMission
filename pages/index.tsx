@@ -10,46 +10,46 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
   const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
-    // Show notification when page loads and LIFF is initialized
+    // Show notification immediately when page loads and LIFF is initialized
     if (liff) {
-      // Get LIFF Access Token and send service message
-      const sendServiceMessage = async () => {
-        try {
-          const liffAccessToken = liff.getAccessToken();
-          
-          if (!liffAccessToken) {
-            console.error('Failed to get LIFF Access Token');
-            return;
-          }
-
-          // Call API to send service message
-          const response = await fetch('/api/send-message', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-liff-access-token': liffAccessToken
-            }
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            console.log('Service message sent:', data);
-            // Show success notification
-            setShowNotification(true);
-          } else {
-            const error = await response.json();
-            console.error('Failed to send message:', error);
-          }
-        } catch (error) {
-          console.error('Error sending message:', error);
-        }
-      };
-
-      sendServiceMessage();
+      setShowNotification(true);
     }
   }, [liff]);
 
-  const handleOkClick = () => {
+  const handleOkClick = async () => {
+    // Send service message when user clicks OK
+    if (liff) {
+      try {
+        const liffAccessToken = liff.getAccessToken();
+        
+        if (!liffAccessToken) {
+          console.error('Failed to get LIFF Access Token');
+          setShowNotification(false);
+          return;
+        }
+
+        // Call API to send service message
+        const response = await fetch('/api/send-message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-liff-access-token': liffAccessToken
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Service message sent:', data);
+        } else {
+          const error = await response.json();
+          console.error('Failed to send message:', error);
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
+    }
+    
+    // Close notification
     setShowNotification(false);
   };
 
